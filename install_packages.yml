@@ -1,0 +1,11 @@
+---
+- name: Install multiple utility packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure tree and cmatrix are installed
+      ansible.builtin.package:
+        name:
+          - tree
+          - cmatrix
+        state: present
