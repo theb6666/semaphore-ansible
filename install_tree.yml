@@ -1,0 +1,9 @@
+---
+- name: Install tree package on target hosts
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure the tree utility is installed
+      ansible.builtin.package:
+        name: tree
+        state: present
