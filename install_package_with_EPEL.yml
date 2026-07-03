@@ -1,0 +1,28 @@
+---
+- name: Install utility packages across different operating systems
+  hosts: all
+  become: true
+  tasks:
+    - name: Install packages on Debian/Ubuntu systems
+      ansible.builtin.apt:
+        name:
+          - tree
+          - cmatrix
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: Setup EPEL and install packages on RedHat/CentOS systems
+      block:
+        - name: Ensure EPEL repository is present (needed for cmatrix)
+          ansible.builtin.dnf:
+            name: epel-release
+            state: present
+
+        - name: Install tree and cmatrix via DNF
+          ansible.builtin.dnf:
+            name:
+              - tree
+              - cmatrix
+            state: present
+      when: ansible_os_family == "RedHat"
