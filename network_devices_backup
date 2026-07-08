@@ -1,0 +1,47 @@
+---
+- name: Daily Backup for Huawei and MikroTik
+  hosts: all
+  gather_facts: no
+  vars:
+    # សូមប្តូរទីតាំង Directory នេះទៅតាមអ្វីដែលអ្នកចង់រក្សាទុកក្នុង Semaphore Server
+    backup_dir: "/opt/network_devices_backups" 
+    date_str: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+  tasks:
+    - name: Create Backup Directory on Ansible Server
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+      run_once: true
+      delegate_to: localhost
+
+    # ---------------- សម្រាប់ Huawei ---------------- #
+    - name: Backup Huawei Switch
+      when: ansible_network_os == 'community.network.ce'
+      block:
+        - name: Get current configuration from Huawei
+          community.network.ce_command:
+            commands: display current-configuration
+          register: hw_config
+
+        - name: Save Huawei config to file
+          ansible.builtin.copy:
+            content: "{{ hw_config.stdout[0] }}"
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.cfg"
+          delegate_to: localhost
+
+    # ---------------- សម្រាប់ MikroTik ---------------- #
+    - name: Backup MikroTik Router
+      when: ansible_network_os == 'community.routeros.routeros'
+      block:
+        - name: Get export configuration from MikroTik
+          community.routeros.command:
+            commands: /export
+          register: mt_config
+
+        - name: Save MikroTik config to file
+          ansible.builtin.copy:
+            content: "{{ mt_config.stdout[0] }}"
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.rsc"
+          delegate_to: localhost
