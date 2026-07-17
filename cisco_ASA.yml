@@ -1,0 +1,30 @@
+
+- name: Daily Backup for Cisco ASA
+  hosts: all
+  gather_facts: no
+  vars:
+    backup_dir: "/opt/network_devices_backups" 
+    date_str: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+  tasks:
+    - name: Create Backup Directory on Ansible Server
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+      run_once: true
+      delegate_to: localhost
+# ---------------- សម្រាប់ Cisco ---------------- #
+    - name: Backup Cisco ASA FW
+      when: ansible_network_os == 'cisco.ios.ios'
+      block:
+        - name: Get running configuration from Cisco
+          cisco.ios.ios_command:
+            commands: show running-config
+          register: cisco_config
+
+        - name: Save Cisco config to file (.cfg)
+          ansible.builtin.copy:
+            content: "{{ cisco_config.stdout[0] }}"
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.cfg"
+          delegate_to: localhost
