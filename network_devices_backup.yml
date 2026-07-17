@@ -63,10 +63,10 @@
             seconds: 2
 
         - name: Fetch .backup file to Ansible server
-          ansible.builtin.fetch:
-            src: "{{ inventory_hostname }}_{{ date_str }}.backup"
-            dest: "{{ backup_dir }}/"
-            flat: yes
+          ansible.netcommon.net_get:
+            src: "/{{ inventory_hostname }}_{{ date_str }}.backup" # បន្ថែមសញ្ញា / នៅពីមុខឈ្មោះ File
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.backup"
+            protocol: sftp # ប្តូរទៅប្រើ sftp ព្រោះ scp អាចនឹងលោត error argument -f
 
         - name: Clean up (Remove) .backup file from MikroTik storage
           community.routeros.command:
