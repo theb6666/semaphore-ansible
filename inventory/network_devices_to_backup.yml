@@ -1,0 +1,33 @@
+# inventory.yml
+all:
+  children:
+    huawei_switches:
+      hosts:
+        theb.net.csw-s5732:
+          ansible_host: 10.6.10.253
+      vars:
+        ansible_network_os: community.network.ce
+        ansible_connection: network_cli
+        
+    mikrotik_routers:
+      hosts:
+        cr-mkt.theb.net:
+          ansible_host: 10.6.10.254
+      vars:
+        ansible_network_os: community.routeros.routeros
+        ansible_connection: network_cli
+    
+    cisco_devices:
+      hosts:
+        cisco-ASW1:
+          ansible_host: 10.6.40.150
+      vars:
+        ansible_connection: network_cli
+        ansible_network_os: cisco.ios.ios
+        # គណនីដែលលោកអ្នកចង់ប្រើ
+        ansible_user: netadmin4backup
+        ansible_password: "YourSSHPassword"
+        # កំណត់ឲ្យ Ansible ចូលប្រើប្រាស់ Enable Mode
+        ansible_become: yes
+        ansible_become_method: enable
+        ansible_become_password: "YourEnablePassword"
