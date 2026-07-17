@@ -72,18 +72,3 @@
           community.routeros.command:
             commands: 
               - '/file remove "{{ inventory_hostname }}_{{ date_str }}.backup"'
-              
-# ---------------- សម្រាប់ Cisco (Router & Switch) ---------------- #
-    - name: Backup Cisco Devices
-      when: ansible_network_os == 'cisco.ios.ios'
-      block:
-        - name: Get running configuration from Cisco
-          cisco.ios.ios_command:
-            commands: show running-config
-          register: cisco_config
-
-        - name: Save Cisco config to file (.cfg)
-          ansible.builtin.copy:
-            content: "{{ cisco_config.stdout[0] }}"
-            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.cfg"
-          delegate_to: localhost
