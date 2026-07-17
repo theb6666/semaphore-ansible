@@ -51,7 +51,7 @@
         - name: Generate .backup file on MikroTik
           community.routeros.command:
             commands: 
-              - '/system backup save name="{{ inventory_hostname }}_{{ date_str }}.backup"'
+              - '/system backup save dont-encrypt=yes name="{{ inventory_hostname }}_{{ date_str }}.backup"'
           register: backup_generation
 
         - name: Debug Output from MikroTik (ដើម្បីមើលថាមាន Error ដែរឬទេ)
