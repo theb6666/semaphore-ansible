@@ -14,17 +14,17 @@
         mode: '0755'
       run_once: true
       delegate_to: localhost
-# ---------------- សម្រាប់ Cisco ---------------- #
-    - name: Backup Cisco ASA FW
-      when: ansible_network_os == 'cisco.ios.ios'
+# ---------------- សម្រាប់ Cisco ASA Firewall ---------------- #
+    - name: Backup Cisco ASA
+      when: ansible_network_os == 'cisco.asa.asa'
       block:
-        - name: Get running configuration from Cisco
-          cisco.ios.ios_command:
+        - name: Get running configuration from ASA
+          cisco.asa.asa_command:
             commands: show running-config
-          register: cisco_config
+          register: asa_config
 
-        - name: Save Cisco config to file (.cfg)
+        - name: Save ASA config to file (.cfg)
           ansible.builtin.copy:
-            content: "{{ cisco_config.stdout[0] }}"
+            content: "{{ asa_config.stdout[0] }}"
             dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.cfg"
           delegate_to: localhost
