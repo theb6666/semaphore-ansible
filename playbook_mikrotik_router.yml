@@ -1,4 +1,4 @@
-- name: Daily Backup for Huawei and MikroTik
+- name: Daily Backup for MikroTik Router .rsc and .backup
   hosts: all
   gather_facts: no
   vars:
