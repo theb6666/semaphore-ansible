@@ -53,10 +53,10 @@
             commands: "/system backup save name={{ inventory_hostname }}_{{ date_str }}.backup"
         
         - name: Fetch .backup file to Ansible server
-          ansible.netcommon.net_get:
+          ansible.builtin.fetch:
             src: "{{ inventory_hostname }}_{{ date_str }}.backup"
-            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.backup"
-            protocol: scp
+            dest: "{{ backup_dir }}/"
+            flat: yes
 
         - name: Clean up (Remove) .backup file from MikroTik storage
           community.routeros.command:
