@@ -1,0 +1,57 @@
+- name: Daily Backup for Huawei and MikroTik
+  hosts: all
+  gather_facts: no
+  vars:
+    backup_dir: "/opt/network_devices_backups" 
+    date_str: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
+
+  tasks:
+    - name: Create Backup Directory on Ansible Server
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+      run_once: true
+      delegate_to: localhost
+
+# ---------------- សម្រាប់ MikroTik ---------------- #
+    - name: Backup MikroTik Router
+      when: ansible_network_os == 'community.routeros.routeros'
+      block:
+        # ---- ផ្នែកទី ១: Backup ជា File .rsc (Plain-text) ---- #
+        - name: Get export configuration from MikroTik
+          community.routeros.command:
+            commands: /export
+          register: mt_config
+
+        - name: Save MikroTik config to file (.rsc)
+          ansible.builtin.copy:
+            content: "{{ mt_config.stdout[0] }}"
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.rsc"
+          delegate_to: localhost
+
+# ---- ផ្នែកទី ២: Backup ជា File .backup (Binary ជាមួយ Passwords) ---- #
+        - name: Generate .backup file on MikroTik
+          community.routeros.command:
+            commands: 
+              - '/system backup save dont-encrypt=yes name="{{ inventory_hostname }}_{{ date_str }}"'
+          register: backup_generation
+
+        - name: Debug Output from MikroTik (ដើម្បីមើលថាមាន Error ដែរឬទេ)
+          ansible.builtin.debug:
+            var: backup_generation.stdout_lines
+
+        - name: Wait for backup file to be written on disk
+          ansible.builtin.pause:
+            seconds: 2
+
+        - name: Fetch .backup file to Ansible server
+          ansible.netcommon.net_get:
+            src: "/{{ inventory_hostname }}_{{ date_str }}.backup"
+            dest: "{{ backup_dir }}/{{ inventory_hostname }}_{{ date_str }}.backup"
+            protocol: sftp
+
+        - name: Clean up (Remove) .backup file from MikroTik storage
+          community.routeros.command:
+            commands: 
+              - '/file remove "{{ inventory_hostname }}_{{ date_str }}.backup"'
