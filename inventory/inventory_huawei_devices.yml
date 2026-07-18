@@ -1,0 +1,9 @@
+all:
+  children:
+    huawei_switches:
+      hosts:
+        theb.net.csw-s5732:
+          ansible_host: 10.6.10.253
+      vars:
+        ansible_network_os: community.network.ce
+        ansible_connection: network_cli
