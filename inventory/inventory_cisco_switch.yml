@@ -1,0 +1,14 @@
+all:
+  children:
+    cisco_devices:
+      hosts:
+        cisco-ASW1:
+          ansible_host: 10.6.40.150
+      vars:
+        ansible_connection: network_cli
+        ansible_network_os: cisco.ios.ios
+        ansible_user: netadmin4backup
+        ansible_password: "Iamsecure@2027" 
+        ansible_become: yes
+        ansible_become_method: enable
+        ansible_become_password: "Iamsecure@2027"
