@@ -1,0 +1,9 @@
+all:
+  children:
+    mikrotik_routers:
+      hosts:
+        cr-mkt.theb.net:
+          ansible_host: 10.6.10.254
+      vars:
+        ansible_network_os: community.routeros.routeros
+        ansible_connection: network_cli
